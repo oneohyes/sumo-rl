@@ -12,7 +12,7 @@ else:
     sys.exit("Please declare the environment variable 'SUMO_HOME'")
 
 from sumo_rl import SumoEnvironment
-from sumo_rl.agents import QLAgent
+from sumo_rl.agents import QLAgent, FuzzyQLAgent
 from sumo_rl.exploration import EpsilonGreedy
 
 from user.observation import CustomObservationFunction
@@ -37,12 +37,13 @@ if __name__ == "__main__":
     for run in range(1, runs + 1):
         initial_states = env.reset()
         ql_agents = {
-            ts: QLAgent(
+            ts: FuzzyQLAgent(
                 starting_state=env.encode(initial_states[ts], ts),
                 state_space=env.observation_space,
                 action_space=env.action_space,
                 alpha=alpha,
                 gamma=gamma,
+                fuzzy_dims= range( env.traffic_signals[ts].num_green_phases+1,  env.traffic_signals[ts].num_green_phases + 2*len(env.traffic_signals[ts].lanes)),
                 exploration_strategy=EpsilonGreedy(initial_epsilon=0.05, min_epsilon=0.005, decay=decay),
             )
             for ts in env.ts_ids

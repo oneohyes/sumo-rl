@@ -17,7 +17,9 @@ dependencies = [
     'pandas',
     'pillow',
     'sumolib>=1.14.0',
-    'traci>=1.14.0'
+    'traci>=1.14.0',
+    "scikit-fuzzy>=0.5.0",
+    "scipy>=1.10.1",
 ]
 dynamic = ["version"]
 
