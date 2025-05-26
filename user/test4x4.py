@@ -12,31 +12,24 @@ else:
     sys.exit("Please declare the environment variable 'SUMO_HOME'")
 
 from sumo_rl import SumoEnvironment
-from sumo_rl.agents import QLAgent, FuzzyQLAgent
+from sumo_rl.agents import QLAgent
 from sumo_rl.exploration import EpsilonGreedy
 
-from user.observation import CustomObservationFunction
-
-# user/nets/osm.net.xml.gz
-# user/nets/osm.passenger.trips.xml
-# sumo_rl/nets/4x4-Lucas/4x4.net.xml
-# sumo_rl/nets/4x4-Lucas/4x4c1c2c1c2.rou.xml
 
 if __name__ == "__main__":
     alpha = 0.1
     gamma = 0.99
     decay = 1
-    runs = 2
+    runs = 10
     episodes = 4
 
     env = SumoEnvironment(
         net_file="sumo_rl/nets/4x4-Lucas/4x4.net.xml",
-        route_file="sumo_rl/nets/4x4-Lucas/4x4mod.rou.xml",  # trips can actually work as well
-        use_gui=False,
-        num_seconds=20000,
+        route_file="sumo_rl/nets/4x4-Lucas/4x4c1c2c1c2.rou.xml",
+        use_gui=True,
+        num_seconds=3600,
         min_green=5,
         delta_time=5,
-        observation_class=CustomObservationFunction,   # Use custom observation function
     )
 
     for run in range(1, runs + 1):
@@ -48,7 +41,6 @@ if __name__ == "__main__":
                 action_space=env.action_space,
                 alpha=alpha,
                 gamma=gamma,
-                # fuzzy_dims= range( env.traffic_signals[ts].num_green_phases+1,  env.traffic_signals[ts].num_green_phases + 2*len(env.traffic_signals[ts].lanes)),
                 exploration_strategy=EpsilonGreedy(initial_epsilon=0.05, min_epsilon=0.005, decay=decay),
             )
             for ts in env.ts_ids
@@ -70,6 +62,6 @@ if __name__ == "__main__":
                 for agent_id in s.keys():
                     ql_agents[agent_id].learn(next_state=env.encode(s[agent_id], agent_id), reward=r[agent_id])
 
-            env.save_csv(f"outputs/4x4/ql-osm_run{run}", episode)
+            env.save_csv(f"outputs/4x4/ql-4x4grid_run{run}", episode)
 
     env.close()
